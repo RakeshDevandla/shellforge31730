@@ -3,6 +3,7 @@
 #include <string.h>
 #include <readline/history.h>
 #include <readline/readline.h>
+#include "lexer.h"
 
 int main(void)
 {
@@ -11,32 +12,33 @@ int main(void)
     printf("A Unix Style Shell written in C\n");
     printf("=====================================\n");
 
-    while (1)
-    {
+    while (1) {
         char *line = readline("shellforge$ ");
 
-        if (line == NULL)
-        {
+        if (line == NULL) {
             printf("\nGoodbye!\n");
             break;
         }
 
-        if (strlen(line) == 0)
-        {
+        if (strlen(line) == 0) {
             free(line);
             continue;
         }
 
         add_history(line);
 
-        if (strcmp(line, "exit") == 0)
-        {
+        if (strcmp(line, "exit") == 0) {
             free(line);
             printf("Exiting...\n");
             break;
         }
 
-        printf("YOU ENTERED: %s\n", line);
+        token_list_t tokens;
+
+        if (lexer(line, &tokens) == 0) {
+            token_print(&tokens);
+        }
+
         free(line);
     }
 
