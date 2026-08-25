@@ -4,6 +4,8 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 #include "lexer.h"
+#include "parser.h"
+#include "expand.h"
 
 int main(void)
 {
@@ -27,16 +29,22 @@ int main(void)
 
         add_history(line);
 
+        token_list_t tokens;
+        pipeline_t pipeline;
+
+        if (lexer(line, &tokens) == 0) {
+            token_print(&tokens);
+
+            if (parse(&tokens, &pipeline)) {
+                expand_variables(&pipeline);
+                pipeline_print(&pipeline);
+            }
+        }
+
         if (strcmp(line, "exit") == 0) {
             free(line);
             printf("Exiting...\n");
             break;
-        }
-
-        token_list_t tokens;
-
-        if (lexer(line, &tokens) == 0) {
-            token_print(&tokens);
         }
 
         free(line);
