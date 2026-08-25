@@ -6,6 +6,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "expand.h"
+#include "builtin.h"
 
 int main(void)
 {
@@ -38,13 +39,16 @@ int main(void)
             if (parse(&tokens, &pipeline)) {
                 expand_variables(&pipeline);
                 pipeline_print(&pipeline);
-            }
-        }
 
-        if (strcmp(line, "exit") == 0) {
-            free(line);
-            printf("Exiting...\n");
-            break;
+                if (pipeline.command_count == 1) {
+                    int result = builtin_execute(&pipeline.commands[0]);
+
+                    if (result == BUILTIN_EXIT) {
+                        free(line);
+                        break;
+                    }
+                }
+            }
         }
 
         free(line);
